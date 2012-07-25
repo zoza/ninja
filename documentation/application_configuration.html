@@ -119,34 +119,54 @@
         <div id="bodyColumn"  class="span10" >
                                   
             <h1>Configure your application</h1><h2>Introduction to application.conf</h2><p>By convention Ninja will look for a configuration file at &ldquo;conf/application.conf&rdquo;.</p><p>application.conf is a simple properties file with keys and values. &ldquo;#&rdquo; is a comment.</p>
-<pre><code># an arbitrary content
-application.name=Ninja demo application
-application.cookie.prefix=NINJA
-</code></pre><p>Like any other Ninja file it is encoded in Utf-8. Make sure your editor reads and
+<pre class="prettyprint">
+    # an arbitrary content
+    application.name=Ninja demo application
+    application.cookie.prefix=NINJA
+</pre><p>Like any other Ninja file it is encoded in Utf-8. Make sure your editor reads and
 saves the file in the correct encoding. </p><p>Ninja properties can do much more than traditional Java properties. For instance
 it is possible to reference other properties by their name and combine them.</p>
-<pre><code>serverName=http://myserver.com
-serverPort=80
-fullServerName=${serverName}:${serverPort}
-</code></pre><p>fullServerName references the previously set values of the keys and will return &quot;<a href="http://myserver.com:80&quot;">http://myserver.com:80&quot;</a>.</p><p>Inside your application you can use class NinjaProperties to get the properties.</p>
-<pre><code>NinjaProperties.get(&quot;fullServerName&quot;)            # will return &quot;http://myserver.com:80&quot;
-</code></pre><p>The properties are read and managed by the excellent Apache Configurations library. Please
-refer to <a href="http://commons.apache.org/configuration/">their manual</a> for even more information on advanced usage.</p><h2>Configuring the modes</h2><p>Ninja uses three predefined modes (test, dev, prod as defined in NinjaConstant.java). You can set the
+<pre class="prettyprint">
+    serverName=myserver.com
+    serverPort=80
+    fullServerName=${serverName}:${serverPort}
+</pre><p>fullServerName references the previously set values of the keys and will return myserver.com:80.</p><p>Inside your application there are two ways to get the properties. </p><p>First way is to use NinjaProperties.get(&hellip;). You have to inject NinjaProperties first, then you
+can use all sorts of functions to retrieve properties.</p>
+<pre class="prettyprint">
+    @Inject 
+    NinjaProperties ninjaProperties;
+    
+    public void myMethod() {
+        String value = ninjaProperties.get("fullServerName")
+        ... do even more...
+    }
+</pre><p>The second way to get properties is to inject them via @Named(&ldquo;fullServerName&rdquo;).</p>
+<pre class="prettyprint">
+    /** An arbitrary constructor */
+    @Inject
+    ApplicataionController(@Named("fullServerName") String fullServerName) {
+        ... do something ...
+    }
+</pre><p>The properties are read and managed by the excellent Apache Configurations library. Please
+refer to <a href="http://commons.apache.org/configuration/">their manual</a> for even more information on advanced usage.</p><h2>Configuring the modes</h2><p>Ninja uses three predefined modes (test, dev and prod as defined in NinjaConstant.java). You can set the
 modes by setting a Java system property called &ldquo;ninja.mode&rdquo;.</p>
-<pre><code>On the command line:
-&gt; java -Dninja.mode=dev
-
-Or programmatically:
-System.setProperty(NinjaConstant.MODE_KEY, NinjaConstant.MODE_DEV)
-</code></pre><p>Just make sure that you set the system property early so that Ninja knows its mode from the very beginning.</p><p>This modes are handy if you want to define different properties for different environments.
+<pre class="prettyprint">
+    On the command line:
+    > java -Dninja.mode=dev
+    
+    Or programmatically:
+    System.setProperty(NinjaConstant.MODE_KEY, NinjaConstant.MODE_DEV)
+</pre><p>Just make sure that you set the system property early so that Ninja knows its mode from the very beginning.</p><p>This modes are handy if you want to define different properties for different environments.
 You may want to use database1 when running tests and database2 when developing.</p><p>Ninja supports that use case by using a mode prefix prior to your property key.</p>
-<pre><code>database.name=database_production   # will be used when no mode is set (or prod)
-%dev.database.name=database_test    # will be used when running in dev mode
-%test.database.name=database_test   # will be used when running in test mode
-</code></pre><p>The convention is to use a &ldquo;%&rdquo; and the name of the mode followed by &ldquo;.&rdquo;.</p><h2>External configuration for deployment</h2><p>When running on a server you may want to use a completely different configuration.
+<pre class="prettyprint">
+    database.name=database_production   # will be used when no mode is set (or prod)
+    %dev.database.name=database_test    # will be used when running in dev mode
+    %test.database.name=database_test   # will be used when running in test mode
+</pre><p>The convention is to use a &ldquo;%&rdquo; and the name of the mode followed by &ldquo;.&rdquo;.</p><h2>External configuration for deployment</h2><p>When running on a server you may want to use a completely different configuration.
 This can be accomplished by using the setting a Java system property:</p>
-<pre><code>java -Dninja.external.configuration=production.conf
-</code></pre><p>This tells Ninja to load conf/application.conf as usual - but also load production.conf and
+<pre class="prettyprint">
+    java -Dninja.external.configuration=production.conf
+</pre><p>This tells Ninja to load conf/application.conf as usual - but also load production.conf and
 replace all keys that are mentioned in both files with the one from production.conf.</p><p>That way you can manage a production configuration separately from
 your project. For instance - you may want to do this when your server secret should only
 be available to a certain set of people and not all devs. </p><p>Just make sure the file &ldquo;production.conf&rdquo; is on the classpath. Ninja currently does
