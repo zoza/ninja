@@ -76,11 +76,11 @@
                           <a href="../documentation/getting_started.html" title="Getting started">Getting started</a>
             </li>
                   <li class="none">
-            <strong>Configuration</strong>
-          </li>
-                  <li class="none">
-                          <a href="../documentation/deployment.html" title="Deployment">Deployment</a>
+                          <a href="../documentation/application_configuration.html" title="Configuration">Configuration</a>
             </li>
+                  <li class="none">
+            <strong>Deployment</strong>
+          </li>
                   <li class="none">
                           <a href="../apidocs/index.html" title="API">API</a>
             </li>
@@ -121,60 +121,46 @@
         
         <div id="bodyColumn"  class="span10" >
                                   
-            <h1>Configure your application</h1><h2>Introduction to application.conf</h2><p>By convention Ninja will look for a configuration file at &ldquo;conf/application.conf&rdquo;.</p><p>application.conf is a simple properties file with keys and values. &ldquo;#&rdquo; is a comment.</p>
-<pre class="prettyprint">
-    # an arbitrary content
-    application.name=Ninja demo application
-    application.cookie.prefix=NINJA
-</pre><p>Like any other Ninja file it is encoded in Utf-8. Make sure your editor reads and
-saves the file in the correct encoding. </p><p>Ninja properties can do much more than traditional Java properties. For instance
-it is possible to reference other properties by their name and combine them.</p>
-<pre class="prettyprint">
-    serverName=myserver.com
-    serverPort=80
-    fullServerName=${serverName}:${serverPort}
-</pre><p>fullServerName references the previously set values of the keys and will return myserver.com:80.</p><p>Inside your application there are two ways to get the properties. </p><p>First way is to use NinjaProperties.get(&hellip;). You have to inject NinjaProperties first, then you
-can use all sorts of functions to retrieve properties.</p>
-<pre class="prettyprint">
-    @Inject 
-    NinjaProperties ninjaProperties;
-    
-    public void myMethod() {
-        String value = ninjaProperties.get("fullServerName")
-        ... do even more...
-    }
-</pre><p>The second way to get properties is to inject them via @Named(&ldquo;fullServerName&rdquo;).</p>
-<pre class="prettyprint">
-    /** An arbitrary constructor */
-    @Inject
-    ApplicataionController(@Named("fullServerName") String fullServerName) {
-        ... do something ...
-    }
-</pre><p>The properties are read and managed by the excellent Apache Configurations library. Please
-refer to <a href="http://commons.apache.org/configuration/">their manual</a> for even more information on advanced usage.</p><h2>Configuring the modes</h2><p>Ninja uses three predefined modes (test, dev and prod as defined in NinjaConstant.java). You can set the
-modes by setting a Java system property called &ldquo;ninja.mode&rdquo;.</p>
-<pre class="prettyprint">
-    On the command line:
-    > java -Dninja.mode=dev
-    
-    Or programmatically:
-    System.setProperty(NinjaConstant.MODE_KEY, NinjaConstant.MODE_DEV)
-</pre><p>Just make sure that you set the system property early so that Ninja knows its mode from the very beginning.</p><p>This modes are handy if you want to define different properties for different environments.
-You may want to use database1 when running tests and database2 when developing.</p><p>Ninja supports that use case by using a mode prefix prior to your property key.</p>
-<pre class="prettyprint">
-    database.name=database_production   # will be used when no mode is set (or prod)
-    %dev.database.name=database_test    # will be used when running in dev mode
-    %test.database.name=database_test   # will be used when running in test mode
-</pre><p>The convention is to use a &ldquo;%&rdquo; and the name of the mode followed by &ldquo;.&rdquo;.</p><h2>External configuration for deployment</h2><p>When running on a server you may want to use a completely different configuration.
-This can be accomplished by using the setting a Java system property:</p>
-<pre class="prettyprint">
-    java -Dninja.external.configuration=production.conf
-</pre><p>This tells Ninja to load conf/application.conf as usual - but also load production.conf and
-replace all keys that are mentioned in both files with the one from production.conf.</p><p>That way you can manage a production configuration separately from
-your project. For instance - you may want to do this when your server secret should only
-be available to a certain set of people and not all devs. </p><p>Just make sure the file &ldquo;production.conf&rdquo; is on the classpath. Ninja currently does
-not read the file from the file system. It is loaded solely from the classpath to
-circumvent any Security Issues with your container.</p>
+            <h1>Deployment</h1><p>You got a great application up and running. And now you want to host is somewhere.
+Fortunately Ninja is built with 100% standard technologies. </p><p>Therefore you got a myriad of options for deployment.</p><h2>War based deployment with Tomcat</h2><p>When you run</p>
+<pre><code>&gt; mvn war:war
+</code></pre><p>You get a war file in the subfolder /target of your project. That war file is compatible with almost all
+war containers out there.</p><p>With <a href="http://www.mulesoft.com/tomcat-deploy">Tomcat&rsquo;s hot deployment</a> function
+you can simply take that file and drop it into the tomcat webapp folder.
+Tomcat automatically detects the new file, stops the old application and starts the new one.</p><p>It can&rsquo;t get simpler. But better. The very same mechanism works nicely when Tomcat is running in a cluster
+configuration. Simply drop the new war file into the webapp folder and that Tomcat instance will tell all
+cluster Tomcat&rsquo;s about the file. Subsequently the cluster changes to that new version of your application.</p><p>You can easily automate that process by using the <a href="http://cargo.codehaus.org/Maven2+plugin">maven cargo plugin</a>.
+That makes it really easy to get a simple Jenkins based continuous deployment up and running.</p><h2>Deployment on Google App Engine</h2><p><a href="https://developers.google.com/appengine/">Google&rsquo;s App Engine</a> is a great hosting service provided by Google.
+The really cool feature is it scales automatically. Deploy and scale - it is really that simple.</p><p>Of course Ninja is fully compatible to the App Engine.</p><p>You can find a working demo project at: <a href="https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine">https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine</a> .</p><p>The special parts are:</p><p>1) Make sure you got a file called appengine-web.xml in your /src/main/webapp/WEB-INF directory.</p><p>The contents of the file look like:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;appengine-web-app xmlns=&quot;http://appengine.google.com/ns/1.0&quot;&gt;
+    &lt;application&gt;MY-APP-ID&lt;/application&gt;
+    &lt;version&gt;2012-07-27&lt;/version&gt;
+    &lt;threadsafe&gt;true&lt;/threadsafe&gt;
+&lt;/appengine-web-app&gt;
+</code></pre><p>This is a standard descriptor of the App Engine and you can define a lot more using that descriptor. Check out the
+App Engine docs for details</p><p>2) We need the App Engine SDK and a special way to upload stuff</p><p>As we are using Maven we can use a great maven plugin from <a href="http://www.kindleit.net/maven_gae_plugin/usage.html">net.kindleit</a>.
+A minimal configuration in your pom.xml will look like:</p>
+<pre><code>&lt;plugin&gt;
+    &lt;groupId&gt;net.kindleit&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-gae-plugin&lt;/artifactId&gt;
+    &lt;version&gt;0.9.4&lt;/version&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;net.kindleit&lt;/groupId&gt;
+            &lt;artifactId&gt;gae-runtime&lt;/artifactId&gt;
+            &lt;version&gt;${gae.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;plugin&gt;
+</code></pre><p>After adding the plugin to your maven build your have to execute</p>
+<pre><code>mvn gae:unpack
+</code></pre><p>This will download the latest App Engine SDK automatically.</p><p>Then you can call</p>
+<pre><code>mvn gae:update
+</code></pre><p>This will prompt you for your username / password and upload your Ninja application
+to Google&rsquo;s cloud. Done.</p><h2>Heroku support</h2><p>Ninja is fully supported by Heroku. Check out the guide at their website at:
+<a href="https://devcenter.heroku.com/articles/java">https://devcenter.heroku.com/articles/java</a> .</p>
                   </div>
             </div>
       
