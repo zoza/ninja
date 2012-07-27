@@ -121,17 +121,18 @@
         
         <div id="bodyColumn"  class="span10" >
                                   
-            <h1>Deployment</h1><p>You got a great application up and running. And now you want to host is somewhere.
-Fortunately Ninja is built with 100% standard technologies. </p><p>Therefore you got a myriad of options for deployment.</p><h2>War based deployment with Tomcat</h2><p>When you run</p>
+            <h1>Deployment</h1><p>You just developed a great application - and now you want to host it somewhere.
+Fortunately, Ninja is built on standard technologies. </p><p>Therefore you got a myriad of great options for deployment.</p><h2>War based deployment with Java application servers</h2><p>When you run</p>
 <pre><code>&gt; mvn war:war
 </code></pre><p>You get a war file in the subfolder /target of your project. That war file is compatible with almost all
-war containers out there.</p><p>With <a href="http://www.mulesoft.com/tomcat-deploy">Tomcat&rsquo;s hot deployment</a> function
-you can simply take that file and drop it into the tomcat webapp folder.
+war containers out there. Jetty and Tomcat are two of them, but you can also deploy to Glassfish and JBoss.</p><p>Just a quick example: With <a href="http://www.mulesoft.com/tomcat-deploy">Tomcat&rsquo;s hot deployment</a> function
+you can simply take the war file produced by Ninja and drop it into the tomcat webapp folder.
 Tomcat automatically detects the new file, stops the old application and starts the new one.</p><p>It can&rsquo;t get simpler. But better. The very same mechanism works nicely when Tomcat is running in a cluster
 configuration. Simply drop the new war file into the webapp folder and that Tomcat instance will tell all
 cluster Tomcat&rsquo;s about the file. Subsequently the cluster changes to that new version of your application.</p><p>You can easily automate that process by using the <a href="http://cargo.codehaus.org/Maven2+plugin">maven cargo plugin</a>.
-That makes it really easy to get a simple Jenkins based continuous deployment up and running.</p><h2>Deployment on Google App Engine</h2><p><a href="https://developers.google.com/appengine/">Google&rsquo;s App Engine</a> is a great hosting service provided by Google.
-The really cool feature is it scales automatically. Deploy and scale - it is really that simple.</p><p>Of course Ninja is fully compatible to the App Engine.</p><p>You can find a working demo project at: <a href="https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine">https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine</a> .</p><p>The special parts are:</p><p>1) Make sure you got a file called appengine-web.xml in your /src/main/webapp/WEB-INF directory.</p><p>The contents of the file look like:</p>
+That makes it really easy to get a simple Jenkins based continuous deployment up and running.</p><p>That&rsquo;s the power of following well proved standars. Ninja - and the apps you are building with Ninja -
+is standing on the shoulder of giants.</p><h2>Deployment on Google App Engine</h2><p><a href="https://developers.google.com/appengine/">Google&rsquo;s App Engine</a> is a great hosting service provided by Google.
+The really cool feature is it scales automatically. Deploy and never worry about any scaling issues - it is really that simple.</p><p>Of course Ninja is fully compatible to the App Engine.</p><p>You can find a working demo project at: <a href="https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine">https://github.com/reyez/ninja/tree/develop/ninja-demo-application-app-engine</a> .</p><p>The special parts are:</p><p>1) Make sure you got a file called appengine-web.xml in your /src/main/webapp/WEB-INF directory.</p><p>The contents of the file look like:</p>
 <pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
 &lt;appengine-web-app xmlns=&quot;http://appengine.google.com/ns/1.0&quot;&gt;
     &lt;application&gt;MY-APP-ID&lt;/application&gt;
