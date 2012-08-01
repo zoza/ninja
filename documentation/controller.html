@@ -76,8 +76,8 @@
                           <a href="../documentation/getting_started.html" title="Getting started">Getting started</a>
             </li>
                   <li class="none">
-                          <a href="../documentation/controller.html" title="Controller">Controller</a>
-            </li>
+            <strong>Controller</strong>
+          </li>
                   <li class="none">
                           <a href="../documentation/application_configuration.html" title="Configuration">Configuration</a>
             </li>
@@ -124,13 +124,73 @@
         
         <div id="bodyColumn"  class="span10" >
                                   
-            <h1>How to contribute</h1><h2>Great you want to contribute!</h2><p>Contributing to Ninja is really simple. Well. There are some rules that you should follow:</p>
-<ul>
-  <li>Make sure your feature is well tested</li><li>Make sure your feature runs inside ninja-demo-application</li><li>Make sure your feature is well documented (Javadoc)</li><li>Make sure there is a tutorial inside the website (ninja-core/src/site/markdown)</li><li>Make sure you are following the code style below.</li>
-</ul><p>Then send us a pull request and you become a happy member of the Ninja family :)</p><h2>Code style</h2>
-<ul>
-  <li>Default Sun Java / Eclipse code style (a default config for eclipse can be found at the project root eclipse-ninja-format.xml.</li><li>If you change only tiny things only reformat stuff you actually changed. Otherwise reviewing is really hard.</li><li>We use tabs.</li><li>All files are UTF-8.</li>
-</ul>
+            <h1>Controller</h1><p>Controller are the &ldquo;C&rdquo; in the MVC paradigm.</p><p>As almost everything else in Ninja a controller in Ninja is just a simple
+Java class that follows some little conventions.</p><h2>A really simple controller</h2><p>A really simple controller would look like:</p>
+<pre class="prettyprint">  
+    package controllers;
+
+    @Singleton
+    public class ApplicationController {
+        
+        public Result index() {
+        
+            return Results.html();
+        }
+
+
+    }
+</pre><p>The important conventions are that a controller method must return a &ldquo;Result&rdquo;. A result
+is in short just an object that holds response codes, content to render, headers and cookies
+that should be returned to the visitors of your website.</p><p>By convention we put controllers into package &ldquo;controllers&rdquo;.</p><h2>Getting parameters into your controllers</h2><p>A controller usually not only renders stuff, but also takes some inputs and does something with them.</p><p>Let&rsquo;s say we got a route like that:
+<pre class="prettyprint"><br/>
+ router.GET().route(&ldquo;/user/{id}/{email}/userDashboard&rdquo;).with(ApplicationController.class, &ldquo;userDashboard&rdquo;);
+</pre></p><p>&hellip; and the user visits that Url&hellip;</p>
+<pre class="prettyprint">  
+    /user/12345/my@email.com/userDashboard?debug=false
+</pre><p>We then of course want to know id, email and the value of the debug query parameter.</p><p>In Ninja this is really simple and controller that can do so looks like:</p>
+<pre class="prettyprint">  
+    package controllers;
+
+    @Singleton
+    public class ApplicationController {
+        
+        public Result index(
+                @PathParam("id") String id, 
+                @PathParam("email") String email, 
+                @Param("debug") String debug) {
+                
+            //do something with the parameters...
+        }
+
+
+    }
+</pre><p>Method index now gets the contents of the path params and all query parameters.</p><h2>A note on encoding / decoding</h2><p>Encoding / Decoding of urls is not as easy as you think it is. Ninja tries to simplify everything
+as much as possible, but as user of the Api you have to know what you are submitting to Ninja.</p><p>We recommend the following <a href="http://www.lunatech-research.com/archives/2009/02/03/what-every-web-developer-must-know-about-url-encoding">excellent article from Lunatech</a>
+before you use encoding / decoding actively in your application.</p><p>In short: If you are using a controller like that:</p>
+<pre class="prettyprint">  
+    package controllers;
+
+    @Singleton
+    public class ApplicationController {
+        
+        public Result index(
+                @PathParam("id") String id, 
+                @PathParam("email") String email, 
+                @Param("debug") String debug) {
+                
+            //do something with the parameters...
+        }
+
+    }
+</pre><p>You can expect that String id and String debug are both correctly decoded values. This assumes that
+you are encoding the values correctly on the client side. And encoding is different for
+query parameters or stuff in the path.</p><p>Simple example that outlines some of the difficulties:
+Think of a route &ldquo;/user/{id}/userDashboard&rdquo;.</p><p>Let&rsquo;s say your &ldquo;id&rdquo; is &ldquo;rootuser/domain&rdquo;. If you do not encode the slash in the middle you end up with a
+Url like /user/rootuser/domain/userDashboard. And the this url does not match the route
+because of the &ldquo;/&rdquo;.</p><p>Therefore you have to encode your id correctly. In that case it would be: rootuser%2Fdomain.
+When the user then visits /user/rootuser%2Fdomain/userDashboard the route matches and
+a @PathParam(&ldquo;id&rdquo;) would then be rootuser/domain as it is decoded by Ninja.</p><p>In principle it is really simple. But it is even simpler to mess encoding / decoding up.
+The <a href="http://www.lunatech-research.com/archives/2009/02/03/what-every-web-developer-must-know-about-url-encoding">Lunatech article explains all pitfalls nicely</a>.</p><h2>Injecting stuff</h2><p>TODO</p><h2>Rendering stuff</h2><p>TODO</p><h2>Validation</h2><p>TODO</p>
                   </div>
             </div>
       
