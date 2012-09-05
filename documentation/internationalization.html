@@ -51,7 +51,7 @@
                 
             
                   <li id="publishDate">Last Published: 2012-09-05</li>
-                  <li class="divider">|</li> <li id="projectVersion">Version: 1.0.1</li>
+                  <li class="divider">|</li> <li id="projectVersion">Version: 1.1-SNAPSHOT</li>
                       
                 
             
@@ -220,7 +220,7 @@ Examples are &ldquo;en&rdquo;, &ldquo;de&rdquo;, &ldquo;en-US&rdquo;, &ldquo;en-
 &lt;html&gt;
 </code></pre><h2>Fallback messages</h2><p>You can define a fallback message as message.properties.</p><p>Ninja always looks up messages from more specific to less specific.</p><p>Example: The user requests &ldquo;en-US&rdquo;. The lookup then is</p>
 <ul>
-  <li>return messages.en-US.propertes if file and key is found or</li><li>return messages.en.propertes if file and key is found or</li><li>return messages.en.propertes if file and key is found or</li><li>return null</li>
+  <li>return messages.en-US.propertes if file and key is found or</li><li>return messages.en.propertes if file and key is found or</li><li>return messages.propertes if file and key is found or</li><li>return null</li>
 </ul><p>If you specify</p>
 <pre class="prettyprint">
     application.languages=en
