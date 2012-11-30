@@ -2,18 +2,25 @@ package ninja;
 
 import java.io.IOException;
 
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ninja.utils.NinjaConstant;
 import ninja.utils.NinjaPropertiesImpl;
 
 import com.google.inject.Injector;
 
+/**
+ * This is where all the Ninja dispatching starts. Can e.g. be used in a filter or servlet. Most of the code originally
+ * lived in {@link NinjaServletDispatcher}, but now there is a {@link NinjaServlet} too, so it has been moved here.
+ * 
+ * Targets Servlet 2.5
+ * 
+ * @author ra, henningschuetz
+ * 
+ */
 public class NinjaEntryPoint {
 
     /**
@@ -27,42 +34,9 @@ public class NinjaEntryPoint {
      */
     private Ninja ninja;
 
-    private final String serverName;
-
-    /**
-     * Special constructor for usage in JUnit tests.
-     * 
-     * We are using an embeded jetty for quick server testing. The problem is
-     * that the port will change.
-     * 
-     * Therefore we inject the server name here:
-     * 
-     * @param serverName
-     *            The injected server name. Will override property serverName in
-     *            Ninja properties.
-     */
-    public NinjaEntryPoint(String serverName) {
-        this.serverName = serverName;
-    }
-
-    public NinjaEntryPoint() {
-        // default constructor used in PROD and DEV modes.
-        // Especially serverName will be set from application.conf.
-        this.serverName = null; // intentionally null.
-    }
-
-    public void init(FilterConfig filterConfig) throws ServletException {
-
-        NinjaPropertiesImpl ninjaProperties = new NinjaPropertiesImpl();
-        // force set serverName when in test mode:
-        if (serverName != null) {
-            ninjaProperties.setProperty(NinjaConstant.serverName, serverName);
-        }
-
-        NinjaBootup ninjaBootup = new NinjaBootup(ninjaProperties);
-
+    public NinjaEntryPoint(NinjaPropertiesImpl ninjaPropertiesImpl) {
+        NinjaBootup ninjaBootup = new NinjaBootup(ninjaPropertiesImpl);
         injector = ninjaBootup.getInjector();
-
         ninja = injector.getInstance(Ninja.class);
         ninja.start();
     }
@@ -84,6 +58,12 @@ public class NinjaEntryPoint {
         // And invoke ninja on it.
         // Ninja handles all defined routes, filters and much more:
         ninja.invoke(context);
+    }
 
+    public void destroy() {
+        ninja.shutdown();
+        // We don't need the injector and ninja any more. Destroy!
+        injector = null;
+        ninja = null;
     }
 }
