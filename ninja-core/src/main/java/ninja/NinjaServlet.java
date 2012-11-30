@@ -15,6 +15,9 @@ import ninja.utils.NinjaPropertiesImpl;
  * A simple servlet that allows us to run Ninja inside any servlet
  * container as servlet. Uses {@link NinjaEntryPoint} to do the actual dispatching.
  * 
+ * Quite new and not widely used in production yet, but might be helpful if you want to combine Ninja with other servlet
+ * filters.
+ * 
  * This dispatcher targets Servlet 2.5.
  * 
  * @author henningschuetz

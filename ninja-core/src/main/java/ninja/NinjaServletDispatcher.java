@@ -32,6 +32,11 @@ import ninja.utils.NinjaPropertiesImpl;
  * A simple servlet filter that allows us to run Ninja inside any servlet
  * container as filter. Uses {@link NinjaEntryPoint} to do the actual dispatching.
  * 
+ * Widely used in production already, so this can be considered stable but seems to be not working in a filter chain,
+ * i.e. if you map other filters to the same url-pattern, it might not work as expected. If you want to do this,
+ * consider using {@link NinjaServlet} instead.
+ * 
+ * 
  * This dispatcher targets Servlet 2.5.
  * 
  * @author ra
@@ -64,8 +69,6 @@ public class NinjaServletDispatcher implements Filter {
      * Especially serverName will be set from application.conf.
      */
     public NinjaServletDispatcher() {
-        // default constructor used in PROD and DEV modes.
-        // Especially serverName will be set from application.conf.
         this.serverName = null; // intentionally null.
     }
 
